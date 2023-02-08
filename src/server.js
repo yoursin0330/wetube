@@ -1,0 +1,21 @@
+import express from "express";
+import morgan from "morgan";
+
+import global from "./routers/globalRouter"
+import user from "./routers/userRouter"
+import video from "./routers/videoRouter"
+
+const PORT = 4000;
+
+const app=express();
+const logger = morgan("dev");
+app.use(logger);
+
+
+
+app.use("/",global); //default export 이기 때문에 어떤 이름을 선택하든 상관x
+app.use("/users",user);
+app.use("/videos",video);
+ 
+const handleListening=()=>console.log(`Server listening on port ${PORT} 🚀`)
+app.listen(PORT,handleListening)
