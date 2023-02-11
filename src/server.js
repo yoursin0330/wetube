@@ -9,9 +9,10 @@ const PORT = 4000;
 
 const app=express();
 const logger = morgan("dev");
+
+app.set("view engine","pug") //view engine을 pug로 한다고 알려줌
+app.set("views",process.cwd()+"/src/views") //default로 설정된 위치에서 바꿔줌
 app.use(logger);
-
-
 
 app.use("/",global); //default export 이기 때문에 어떤 이름을 선택하든 상관x
 app.use("/users",user);
