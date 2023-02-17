@@ -1,4 +1,5 @@
 import "./db"; //파일 그 자체를 import
+import "./models/Video";
 import express from "express";
 import morgan from "morgan";
 
@@ -20,5 +21,5 @@ app.use("/", global); //default export 이기 때문에 어떤 이름을 선택�
 app.use("/users", user);
 app.use("/videos", video);
 
-const handleListening = () => console.log(`Server listening on port ${PORT} 🚀`)
+const handleListening = () => console.log(`✅ Server listening on port http://localhost:${PORT} 🚀`)
 app.listen(PORT, handleListening)
