@@ -1,19 +1,29 @@
 import mongoose from "mongoose";
 
-//데이터의 shape 설명. 데이터 작성은 아님!!
+export const formatHashtags = (hashtags) => {
+    hashtags.split(",").map((word) => word.startsWith("#") ? word : `#${word}`)
+}
+
 const videoSchema = new mongoose.Schema({
-    title: String,
-    description: String,
-    createdAt: Date,
-    hashtags: [{ type: String }],
+    title: { type: String, required: true, trim: true, maxLength: 80 },
+    fileUrl: { type: String, required: true, },
+    thumbUrl: { type: String, required: true },
+    description: { type: String, required: true, trim: true, minLength: 5 },
+    createdAt: { type: Date, required: true, default: Date.now },
+    hashtags: [{ type: String, trim: true }],
     meta: {
-        views: Number,
-        rating: Number
+        views: { type: Number, default: 0, required: true },
+        rating: { type: Number, default: 0, required: true }
     },
+    comments: [
+        { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Comment" },
+    ],
+    owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+})
+
+videoSchema.static("formatHashtags", function (hashtags) {
+    return hashtags.split(",").map((word) => (word.startsWith("#") ? word.trim() : `#${word.trim()}`))
 })
 
 const Video = mongoose.model("Video", videoSchema);
 export default Video;
-// export 했으니 다른 곳에서도 import vid from "Video" 가능
-// Video model을 미리 import해서, 모두가 사용할 수 있게 하면
-// 모두가 바로 사용 가능!
