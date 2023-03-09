@@ -3,7 +3,7 @@ import multerS3 from "multer-s3";
 import aws from "aws-sdk";
 
 const isKoyeb = process.env.NODE_ENV === "production"; //true면 koyeb에 있다는 뜻
-
+console.log(process.env.NODE_ENV)
 const s3 = new aws.S3({
     credentials: {
         accessKeyId: process.env.AWS_ID,
