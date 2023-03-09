@@ -21,6 +21,7 @@ app.use(logger);
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 //initialize session before routers
+
 app.use(
     session({ //session middleware - 사이트로 들어오는 모두를 기억
         secret: process.env.COOKIE_SECRET,
@@ -45,5 +46,16 @@ app.use("/", rootRouter); //default export 이기 때문에 어떤 이름을 선
 app.use("/users", userRouter);
 app.use("/videos", videoRouter);
 app.use("/api", apiRouter);
+
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    res.header("Cross-Origin-Embedder-Policy", "credentialless");
+    res.header("Cross-Origin-Opener-Policy", "same-origin");
+    next();
+})
 
 export default app;
