@@ -2,6 +2,8 @@ import multer from "multer";
 import multerS3 from "multer-s3";
 import aws from "aws-sdk";
 
+const isKoyeb = process.env.NODE_ENV === "production"; //true면 koyeb에 있다는 뜻
+
 const s3 = new aws.S3({
     credentials: {
         accessKeyId: process.env.AWS_ID,
@@ -9,18 +11,26 @@ const s3 = new aws.S3({
     },
 })
 
-const multerUploader = multerS3({
+const s3ImageUploader = multerS3({
     s3: s3,
-    bucket: "wetube-yoursin", //bucket 이름 적기
+    bucket: "wetube-yoursin/images", //bucket 이름 적기
     acl: "public-read",
 
 })
+const s3VideoUploader = multerS3({
+    s3: s3,
+    bucket: "wetube-yoursin/videos", //bucket 이름 적기
+    acl: "public-read",
+
+})
+
 
 export const localsMiddleware = (req, res, next) => {
     //setting some locals...
     res.locals.loggedIn = Boolean(req.session.loggedIn);
     res.locals.siteName = "wetube";
     res.locals.loggedInUser = req.session.user || {};
+    res.locals.isKoyeb = isKoyeb;
     next()
 }
 
@@ -50,12 +60,12 @@ export const avatarUpload = multer({
     dest: "uploads/avatars/", limits: {
         fileSize: 3000000,
     },
-    storage: multerUploader,
+    storage: isKoyeb ? s3ImageUploader : undefined,
 })
 
 export const videoUpload = multer({
     dest: "uploads/videos/", limits: {
         fileSize: 10000000,
     },
-    storage: multerUploader,
+    storage: isKoyeb ? s3VideoUploader : undefined,
 })
