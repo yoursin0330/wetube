@@ -1,31 +1,39 @@
-const videoContainer = document.getElementById("videoContainer")
+const videoContainer = document.getElementById("videoContainer");
 const form = document.getElementById("commentForm");
-const deleteCommentBtn = document.getElementById("deleteCommentBtn");
-const addComment = (text, id) => {
-    //JS로 HTML에 추가하기
+const deleteBtn = document.querySelectorAll("#deleteCommentBtn");
+
+const addComment = (text, commentId) => {
     const videoComments = document.querySelector(".video__comments ul");
     const newComment = document.createElement("li");
-    newComment.dataset.id = id;
-    newComment.className = "video__comment"
-    const icon = document.createElement("i");
-    icon.className = "fas fa-comment"
+
+    newComment.dataset.id = commentId;
+    newComment.className = "video__comment";
+    const icon = document.createElement("icon");
+    icon.className = "fas fa-comment";
     const span = document.createElement("span");
-    span.innerText = `${text}` //textarea에서 오는 그 text
+    span.innerText = ` ${text}`;
     const span2 = document.createElement("span");
-    span2.innerText = " ✖️";
+    span2.innerText = "❌";
+    span2.dataset.id = commentId;
+    span2.dataset.videoid = videoContainer.dataset.id;
+    span2.id = "newDeleteCommentBtn";
+    span2.className = "video__comment-delete";
     newComment.appendChild(icon);
     newComment.appendChild(span);
     newComment.appendChild(span2);
-    videoComments.prepend(newComment); //element를 맨 위에 추가하는 방법
-    //appendChild로 element를 다른 것 안에 넣음
-}
+    videoComments.prepend(newComment);
+    const newDeleteCommentBtn = document.querySelector("#newDeleteCommentBtn");
+    newDeleteCommentBtn.addEventListener("click", handleClick);
+};
 
 const handleSubmit = async (event) => {
     event.preventDefault();
     const textarea = form.querySelector("textarea");
-    const text = textarea.value; //댓글 내용
-    const videoId = videoContainer.dataset.id; //댓글 단 비디오의 id
-    if (text === "") return; //text가 비어있지 않을 때만 request
+    const text = textarea.value;
+    const videoId = videoContainer.dataset.id;
+    if (text === "") {
+        return;
+    }
     const response = await fetch(`/api/videos/${videoId}/comment`, {
         method: "POST",
         headers: {
@@ -33,20 +41,27 @@ const handleSubmit = async (event) => {
         },
         body: JSON.stringify({ text }),
     });
-    console.log(response)
-    if (response.status == 201) {
-        textarea.value = ""
+    textarea.value = "";
+    if (response.status === 201) {
         const { newCommentId } = await response.json();
         addComment(text, newCommentId);
     }
-}
+};
+
+const handleClick = async (event) => {
+    const { id, videoid } = event.target.dataset;
+    const response = await fetch(`/api/videos/${videoid}/comments/${id}/delete`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, videoid }),
+    });
+    if (response.status === 200) {
+        event.target.parentNode.remove();
+    }
+};
+
 if (form) form.addEventListener("submit", handleSubmit);
-//form이 항상 존재한다고 가정하지 않기 때문에 개선됨
-
-
-// const handleDeleteComment = () => {
-//     const commentID = deleteCommentBtn.dataset._id;
-//     console.log(commentID);
-// }
-// deleteCommentBtn.addEventListener("click", handleDeleteComment);
-
+if (deleteBtn)
+    deleteBtn.forEach((btn) => btn.addEventListener("click", handleClick));
